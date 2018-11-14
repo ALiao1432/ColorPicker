@@ -13,6 +13,7 @@ import android.graphics.Shader;
 import android.graphics.SweepGradient;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -110,8 +111,10 @@ public class ColorPickerView extends View implements OuterRingSelectedListener {
                 valueSlope = getValueSlope();
             }
         });
+    }
 
-        colorSelectListener = (OnColorSelectListener) context;
+    public void setColorSelectListener(OnColorSelectListener listener) {
+        colorSelectListener = listener;
     }
 
     private float getValue(PointF cursorPointF) {
@@ -354,7 +357,9 @@ public class ColorPickerView extends View implements OuterRingSelectedListener {
 
         setGradient();
         setBackgroundColor(Color.HSVToColor(selectHsv));
-        colorSelectListener.onSelectColor(selectColor);
+        if (colorSelectListener != null) {
+            colorSelectListener.onSelectColor(selectColor);
+        }
         postInvalidate();
     }
 }
