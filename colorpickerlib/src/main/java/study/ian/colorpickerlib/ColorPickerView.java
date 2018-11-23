@@ -18,6 +18,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
+import static study.ian.mathutils.MathUtils.getCenterPoint;
+import static study.ian.mathutils.MathUtils.getCrossPoint;
+
 public class ColorPickerView extends View implements OuterRingSelectedListener {
 
     private final String TAG = "ColorPickerView";
@@ -118,14 +121,14 @@ public class ColorPickerView extends View implements OuterRingSelectedListener {
     }
 
     private float getValue(PointF cursorPointF) {
-        PointF centerP = getCenter(triPointFs[0], triPointFs[2]);
+        PointF centerP = getCenterPoint(triPointFs[0], triPointFs[2]);
         PointF crossP = getCrossPoint(triPointFs[1], centerP, cursorPointF);
         return (float) (Math.hypot(triPointFs[1].x - crossP.x, triPointFs[1].y - crossP.y) /
                 Math.hypot(triPointFs[1].x - centerP.x, triPointFs[1].y - centerP.y));
     }
 
     private float getValueSlope() {
-        PointF centerP = getCenter(triPointFs[0], triPointFs[2]);
+        PointF centerP = getCenterPoint(triPointFs[0], triPointFs[2]);
         return (centerP.y - triPointFs[1].y) / (centerP.x - triPointFs[1].x);
     }
 
@@ -169,62 +172,6 @@ public class ColorPickerView extends View implements OuterRingSelectedListener {
                 cursorPointF.set(getCrossPoint(triPointFs[0], triPointFs[2], triPointFs[1], cursorPointF));
             }
         }
-    }
-
-    /*
-        get cross point with four points, first pair is p0 and p1, second pair is p2 and p3
-     */
-    private PointF getCrossPoint(PointF p0, PointF p1, PointF p2, PointF p3) {
-        PointF p = new PointF();
-
-        // calculate slope
-        float m0 = (p1.y - p0.y) / (p1.x - p0.x);
-        float m1 = (p3.y - p2.y) / (p3.x - p2.x);
-
-        // calculate constant
-        float c0 = p0.y - m0 * p0.x;
-        float c1 = p2.y - m1 * p2.x;
-
-        p.x = (c0 - c1) / (m1 - m0);
-        p.y = m1 * p.x + c1;
-        return p;
-    }
-
-    /*
-        get cross point with three points and one slope for p2, first pair is p0 and p1
-     */
-    private PointF getCrossPoint(PointF p0, PointF p1, PointF p2, float slope) {
-        PointF p = new PointF();
-
-        // calculate slope
-        float m0 = (p1.y - p0.y) / (p1.x - p0.x);
-
-        // calculate constant
-        float c0 = p0.y - m0 * p0.x;
-        float c1 = p2.y - slope * p2.x;
-
-        p.x = (c0 - c1) / (slope - m0);
-        p.y = slope * p.x + c1;
-        return p;
-    }
-
-    /*
-        get cross point with three points,
-        the slope for p2 is perpendicular to line form by p0 and p1
-    */
-    private PointF getCrossPoint(PointF p0, PointF p1, PointF p2) {
-        // calculate slope
-        float m0 = (p1.y - p0.y) / (p1.x - p0.x);
-        float m1 = -1 / m0;
-        return getCrossPoint(p0, p1, p2, m1);
-    }
-
-    private PointF getCenter(PointF p0, PointF p1) {
-        PointF p = new PointF();
-
-        p.x = (p0.x + p1.x) / 2;
-        p.y = (p0.y + p1.y) / 2;
-        return p;
     }
 
     private float getDegree(float x, float y) {
@@ -330,7 +277,7 @@ public class ColorPickerView extends View implements OuterRingSelectedListener {
                 new int[]{Color.WHITE, Color.HSVToColor(new float[]{selectHsv[0], 1, 1}), Color.WHITE},
                 new float[]{0f, 5f / 6f, 1f}
         );
-        cPointF.set(getCenter(triPointFs[0], triPointFs[2]));
+        cPointF.set(getCenterPoint(triPointFs[0], triPointFs[2]));
         valGradient = new LinearGradient(
                 triPointFs[1].x, triPointFs[1].y,
                 cPointF.x, cPointF.y,
